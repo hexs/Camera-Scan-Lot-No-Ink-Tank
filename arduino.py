@@ -81,29 +81,42 @@ class Arduino:
         x = self.ser.read(1)
         self.addToBuffer(x.decode('utf-8'))
         command = self.extractCommand(self.buff)
+        if command is not None:
+            self.addToBuffer('-')
         return command
 
 
-def run_arduino(arduino_data):
+def run_arduino(data):
     arduino = Arduino()
-    while True:
-        command = arduino.read()
-        if command:
-            # print(command)
-            split_command = arduino.splitCommand(command)
-            # print(split_command)
+    while data['run']:
+        try:
+            command = arduino.read()
+            if command:
+                # print(command)
+                split_command = arduino.splitCommand(command)
+                # print(split_command)
+                if command == 'press':
+                    data['command'] = 'read data'
+                    arduino.write('crgb(255,255,150)')
+                if command == 'release':
+                    data['command'] = ''
+                    arduino.write('crgb(10,10,10)')
 
-            arduino_data['command'] = command
-            arduino_data['split_command'] = split_command
+            if data['command'] == 'read data ok':
+                data['command'] = ''
+                arduino.write('crgb(0,255,0)')
+                time.sleep(0.1)
+                arduino.write('crgb(0,0,0)')
+                time.sleep(0.1)
+                arduino.write('crgb(0,255,0)')
+                time.sleep(0.1)
+                arduino.write('crgb(0,0,0)')
+        except Exception as e:
+            print(e)
+            arduino.setup()
 
-            if arduino_data['command'] == 'press':
-                print(arduino_data['command'])
-                arduino_data['command'] = ''
-                arduino.write('crgb(255,255,255)')
-                # time.sleep(1)
 
-
-def main(arduino_data):
+def main(data):
     ...
 
 
@@ -111,12 +124,12 @@ if __name__ == '__main__':
     import multiprocessing
 
     manager = multiprocessing.Manager()
-    arduino_data = manager.dict()
-    arduino_data['command'] = ''
-    arduino_data['split_command'] = ''
+    data = manager.dict()
+    data['command'] = ''
+    data['split_command'] = ''
 
-    arduino_process = multiprocessing.Process(target=run_arduino, args=(arduino_data,))
-    main_process = multiprocessing.Process(target=main, args=(arduino_data,))
+    arduino_process = multiprocessing.Process(target=run_arduino, args=(data,))
+    main_process = multiprocessing.Process(target=main, args=(data,))
 
     arduino_process.start()
     main_process.start()

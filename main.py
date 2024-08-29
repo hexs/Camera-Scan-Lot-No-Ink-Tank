@@ -39,7 +39,7 @@ def main(data):
         t1 = datetime.now()
         data['fps'] = round(1 / max(0.001, (t1 - t2).total_seconds()), 1)
         s, img = data['cap']
-        if data['command'] == 'press':
+        if data['command'] == 'read data':
 
             if not data['data complete'][0]:
                 texts = pytesseract.image_to_string(
@@ -90,7 +90,7 @@ def main(data):
                         data['data complete'] = data['data complete'][0], True
 
             if all(data['data complete']):
-                data['command'] = ''
+                data['command'] = 'read data ok'
 
 
 def getkey(data):
@@ -112,7 +112,6 @@ def getkey(data):
             else:
                 sound1.play()
 
-        # if event_type == 'up' and name == 'right ctrl' and all(data['data complete']):
         if all(data['data complete']):
             sound2.play()
             pyperclip.copy(data['bar MC'])
@@ -142,27 +141,10 @@ def getkey(data):
             data['lot'] = ''
 
 
-def run_arduino(data):
-    from arduino import Arduino
-
-    arduino = Arduino()
-    while data['run']:
-        command = arduino.read()
-        if command:
-            # print(command)
-            split_command = arduino.splitCommand(command)
-            # print(split_command)
-
-            data['command'] = command
-            data['split_command'] = split_command
-
-            if command == 'press':
-                arduino.write('crgb(255,255,255)')
-
-
 if __name__ == '__main__':
     import multiprocessing
     from pg_UI import pg_UI
+    from arduino import run_arduino
 
     manager = multiprocessing.Manager()
     data = manager.dict()
@@ -185,7 +167,6 @@ if __name__ == '__main__':
     data['lot'] = ''
 
     data['command'] = ''
-    data['split_command'] = ''
 
     capture_process = multiprocessing.Process(target=capture, args=(data,))
     main_process = multiprocessing.Process(target=main, args=(data,))

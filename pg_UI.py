@@ -33,8 +33,8 @@ def cvimage_to_pygame(image):
 
 
 def pg_UI(data):
-    # import win32gui
-    # import win32con
+    import win32gui
+    import win32con
 
     pygame.init()
     WIDTH, HEIGHT = 900, 480
@@ -44,7 +44,7 @@ def pg_UI(data):
     # Get the window handle
     hwnd = pygame.display.get_wm_info()["window"]
     # use Always On Top
-    # win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+    win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
 
     BLUE = (0, 0, 255)
     WHITE = (255, 255, 255)

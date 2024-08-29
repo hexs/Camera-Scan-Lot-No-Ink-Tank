@@ -12,26 +12,19 @@ void setup() {
   Serial.begin(9600);
   FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
   pinMode(SW_PIN, 2);
-
 }
 
-int sw_status = 1;
-int old_sw_status = 1;
-
 void loop() {
-  while (1) {
-    if (Serial.available()) {
-      // Read new character from Serial
-      char ch = Serial.read();
-      char str[2] = {ch, '\0'};
-      addToBuffer(str);
-      if (ch == '>') {
-        break;
-      }
+  if (Serial.available()) {
+    // Read new character from Serial
+    char ch = Serial.read();
+    char str[2] = {ch, '\0'};
+    addToBuffer(str);
+    if (ch == '>') {
+      check_command();
     }
-    main_();
   }
-  check_command();
+  main_();
 }
 
 void check_command() {
@@ -51,7 +44,6 @@ void check_command() {
     for (int i = 0; i < 8; i++)
       leds[i] = CRGB(r, g, b);
     FastLED.show();
-
   }
 
   // Free allocated memory for splitResult
@@ -59,18 +51,18 @@ void check_command() {
     free(splitResult[i]);
   }
   free(command);  // Free the allocated memory for command
-
 }
 
+int sw_status = 1;
+int old_sw_status = 1;
 void main_() {
-
   old_sw_status = sw_status;
   sw_status = digitalRead(SW_PIN);
 
   // กด
   if (sw_status == 0 && old_sw_status == 1) {
     for (int i = 0; i < 8; i++)
-      leds[i] = CRGB(100, 100, 100);
+      leds[i] = CRGB(100, 0, 0);
     FastLED.show();
     Serial.print("<press>");
   }
