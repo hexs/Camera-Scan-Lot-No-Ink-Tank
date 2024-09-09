@@ -96,7 +96,7 @@ class Arduino:
 
 def run_arduino(data):
     arduino = Arduino()
-    arduino.setup('Arduino')
+    arduino.setup('Arduino', 'USB Serial Device')
     while data['run']:
         try:
             command = arduino.read()

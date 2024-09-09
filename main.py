@@ -116,15 +116,23 @@ def getkey(data):
             sound2.play()
             pyperclip.copy(data['bar MC'])
             time.sleep(0.1)
-            keyboard.press_and_release('right, ' * 2 + 'Ctrl + v')
+            keyboard.press_and_release("Home, right, right, right")
             time.sleep(0.1)
+            keyboard.write("'")
+            time.sleep(0.1)
+            keyboard.press_and_release("Ctrl + v")
+            time.sleep(0.1)
+
             pyperclip.copy(data['LN'])
-            time.sleep(0.1)
-            keyboard.press_and_release('right, ' * 5 + 'Ctrl + v')
-            time.sleep(0.1)
+            time.sleep(0.2)
+            keyboard.press_and_release('right, right, right, right, right, Ctrl + v')
+            time.sleep(0.2)
             pyperclip.copy(data['bar QTY'])
-            time.sleep(0.1)
-            keyboard.press_and_release('right, Ctrl + v, \n, Home')
+            time.sleep(0.2)
+            keyboard.press_and_release('right, Ctrl + v')
+            time.sleep(0.2)
+
+            keyboard.press_and_release('\n, Home')
 
             data['data complete'] = False, False
             data['old data complete'] = False, False
