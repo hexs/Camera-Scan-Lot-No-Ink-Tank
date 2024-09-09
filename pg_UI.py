@@ -1,8 +1,11 @@
 import numpy as np
-import pygame
 import sys
 import cv2
 from datetime import datetime
+import os
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = 'hide'
+import pygame
 
 
 def putTextRect(img, text, pos, font, scale, colorT=(255, 255, 255), thickness=3,
@@ -39,7 +42,7 @@ def pg_UI(data):
     pygame.init()
     WIDTH, HEIGHT = 900, 480
     display = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Camera Scan")
+    pygame.display.set_caption("Camera Scan (v.1.0.0)")
 
     # Get the window handle
     hwnd = pygame.display.get_wm_info()["window"]
@@ -106,7 +109,4 @@ def pg_UI(data):
 
 
 if __name__ == '__main__':
-    data = {}
-    data['cap'] = None, None
-    data['run'] = True
-    pg_UI(data)
+    ...

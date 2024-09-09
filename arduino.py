@@ -1,5 +1,14 @@
 import time
 import serial
+from serial.tools.list_ports_windows import comports
+
+
+def find_comports(args):
+    for i in comports():
+        for name_of_comports in args:
+            if name_of_comports in i.description:
+                print(f'auto connect to {i.device}')
+                return i.device
 
 
 class Arduino:
@@ -7,17 +16,16 @@ class Arduino:
 
     def __init__(self):
         self.buff = '-' * self.BUF_SIZE
-        self.setup()
 
-    def setup(self):
-        port = 'COM7'
-        baud_rate = 9600
+    def setup(self, *args):
         while True:
             try:
+                port = find_comports(args)
+                baud_rate = 9600
                 self.ser = serial.Serial(port, baud_rate, timeout=1)
                 return
             except:
-                print(f'ERROR ser = serial.Serial({port}, {baud_rate})')
+                print(f'ERROR serial.Serial(...)')
                 time.sleep(1)
 
     def addToBuffer(self, string):
@@ -88,6 +96,7 @@ class Arduino:
 
 def run_arduino(data):
     arduino = Arduino()
+    arduino.setup('Arduino')
     while data['run']:
         try:
             command = arduino.read()
@@ -112,8 +121,9 @@ def run_arduino(data):
                 time.sleep(0.1)
                 arduino.write('crgb(0,0,0)')
         except Exception as e:
-            print(e)
-            arduino.setup()
+            print(f"arduino Error: {e}")
+            arduino.setup('Arduino')
+            time.sleep(0.5)
 
 
 def main(data):
@@ -136,4 +146,3 @@ if __name__ == '__main__':
 
     arduino_process.join()
     main_process.start()
-
