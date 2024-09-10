@@ -46,17 +46,19 @@ def main(data):
                     img,
                     config='--psm 6 -c tessedit_char_whitelist=0123456789[]:ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                 )
+                oldtext = ''
                 # print(texts)
                 for text in texts.split('\n'):
                     if text == '':
                         continue
                     # print("--->", text)
-                    if 'MC' in text:
-                        data['MC'] = text
-                    if 'QTY' in text:
-                        data['QTY'] = text
+                    # if 'MC' in text:
+                    #     data['MC'] = text
+                    # if 'QTY' in text:
+                    #     data['QTY'] = text
                     if 'LN' in text or 'N:' in text:
                         print(BLUE, text, ENDC)
+                        oldtext = text
                         text = text.split('N')[-1]
                         ndmy = text.strip().strip('LN').strip().strip(':').strip()
                         print(PINK, ndmy, ENDC)
@@ -66,6 +68,32 @@ def main(data):
                             m = ndmy[4]
                             d = ndmy[5:]
                             print((l, d, m, y,))
+                            if m == '6':
+                                m = 'C'
+                                ndmy = l + y + m + d
+                            if all(i.isdigit() for i in (d, y)) and m in 'ABCDEFGHIJKL':
+                                d = int(d)
+                                y = int(y) + 2000
+                                m = ord(m) - ord('A') + 1
+                                if 1 <= d <= 31:
+                                    data['LN'] = ndmy
+                                    data['date'] = datetime(year=y, month=m, day=d)
+                                    data['lot'] = l
+
+                                    data['data complete'] = True, data['data complete'][1]
+
+                    if 'QTY' in text:
+                        ndmy = oldtext
+                        print(PINK, ndmy, ENDC)
+                        if len(ndmy) == 7:
+                            l = ndmy[0:2]
+                            y = ndmy[2:4]
+                            m = ndmy[4]
+                            d = ndmy[5:]
+                            print((l, d, m, y,))
+                            if m == '6':
+                                m = 'C'
+                                ndmy = l + y + m + d
                             if all(i.isdigit() for i in (d, y)) and m in 'ABCDEFGHIJKL':
                                 d = int(d)
                                 y = int(y) + 2000
@@ -114,6 +142,7 @@ def getkey(data):
 
         if all(data['data complete']):
             sound2.play()
+
             pyperclip.copy(data['bar MC'])
             time.sleep(0.1)
             keyboard.press_and_release("Home, right, right, right")
@@ -137,9 +166,9 @@ def getkey(data):
             data['data complete'] = False, False
             data['old data complete'] = False, False
 
-            data['MC'] = ''
+            # data['MC'] = ''
             data['LN'] = ''
-            data['QTY'] = ''
+            # data['QTY'] = ''
 
             data['barcode'] = ''
             data['bar MC'] = ''
@@ -163,9 +192,9 @@ if __name__ == '__main__':
     data['data complete'] = False, False
     data['old data complete'] = False, False
 
-    data['MC'] = ''
+    # data['MC'] = ''
     data['LN'] = ''
-    data['QTY'] = ''
+    # data['QTY'] = ''
 
     data['barcode'] = ''
     data['bar MC'] = ''
