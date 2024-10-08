@@ -2,18 +2,7 @@ import time
 import cv2
 import numpy as np
 from datetime import datetime
-
-BLACK = '\033[90m'
-RED = '\033[91m'
-GREEN = '\033[92m'
-YELLOW = '\033[93m'
-BLUE = '\033[94m'
-PINK = '\033[95m'
-CYAN = '\033[96m'
-ENDC = '\033[0m'
-BOLD = '\033[1m'
-ITALICIZED = '\033[3m'
-UNDERLINE = '\033[4m'
+from hexss.constants.cml import *
 
 
 def capture(data):
@@ -31,6 +20,25 @@ def capture(data):
 def main(data):
     import pytesseract
     from read_barcode import read_barcodes
+    from hexss import json_load
+
+    changes_data = {}
+    changes = json_load('MC_change.json')
+
+    for _, change in changes.items():
+        from_part = change['from']
+        to_part = change['to']
+        count = change['n']
+
+        base_from = int(from_part[:4])
+        suffix_from = from_part[4:]
+
+        base_to = int(to_part.split('-')[1])
+
+        for i in range(count):
+            old_part = f"{base_from + i:04d}{suffix_from}"
+            new_part = f"Q99-{base_to + i:04d}-001"
+            changes_data[old_part] = new_part
 
     pytesseract.pytesseract.tesseract_cmd = r'C:\Tesseract-OCR\tesseract.exe'
     t1 = datetime.now()
@@ -51,11 +59,6 @@ def main(data):
                 for text in texts.split('\n'):
                     if text == '':
                         continue
-                    # print("--->", text)
-                    # if 'MC' in text:
-                    #     data['MC'] = text
-                    # if 'QTY' in text:
-                    #     data['QTY'] = text
                     if 'LN' in text or 'N:' in text:
                         print(BLUE, text, ENDC)
                         oldtext = text
@@ -112,8 +115,13 @@ def main(data):
                     if len(bar) == 20 and '92' in bar and '30' in bar:
                         bar = bar.replace('92', '[').replace('30', ']')
                         QTY = bar.split(']')[1]
+                        bar = bar[2:-2].replace('[', '').replace(']', '')
+
+                        if bar in changes_data:
+                            bar = changes_data[bar]
+
                         data['bar QTY'] = QTY
-                        data['bar MC'] = bar[2:-2].replace('[', '').replace(']', '')
+                        data['bar MC'] = bar
 
                         data['data complete'] = data['data complete'][0], True
 
@@ -143,32 +151,25 @@ def getkey(data):
         if all(data['data complete']):
             sound2.play()
 
-            pyperclip.copy(data['bar MC'])
-            time.sleep(0.1)
             keyboard.press_and_release("Home, right, right, right")
-            time.sleep(0.1)
             keyboard.write("'")
-            time.sleep(0.1)
-            keyboard.press_and_release("Ctrl + v")
-            time.sleep(0.1)
+            for i in data['bar MC']:
+                keyboard.write(f"{i}")
 
-            pyperclip.copy(data['LN'])
-            time.sleep(0.2)
-            keyboard.press_and_release('right, right, right, right, right, Ctrl + v')
-            time.sleep(0.2)
-            pyperclip.copy(data['bar QTY'])
-            time.sleep(0.2)
-            keyboard.press_and_release('right, Ctrl + v')
-            time.sleep(0.2)
+            keyboard.press_and_release('right, right, right, right, right')
+            for i in data['LN']:
+                keyboard.write(f"{i}")
+
+            keyboard.press_and_release('right')
+            for i in data['bar QTY']:
+                keyboard.write(f"{i}")
 
             keyboard.press_and_release('\n, Home')
 
             data['data complete'] = False, False
             data['old data complete'] = False, False
 
-            # data['MC'] = ''
             data['LN'] = ''
-            # data['QTY'] = ''
 
             data['barcode'] = ''
             data['bar MC'] = ''
@@ -192,9 +193,7 @@ if __name__ == '__main__':
     data['data complete'] = False, False
     data['old data complete'] = False, False
 
-    # data['MC'] = ''
     data['LN'] = ''
-    # data['QTY'] = ''
 
     data['barcode'] = ''
     data['bar MC'] = ''
