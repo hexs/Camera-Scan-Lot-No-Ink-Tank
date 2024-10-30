@@ -40,7 +40,7 @@ def main(data):
             new_part = f"Q99-{base_to + i:04d}-001"
             changes_data[old_part] = new_part
 
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Tesseract-OCR\tesseract.exe'
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Users\chtjn\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
     t1 = datetime.now()
     while data['run']:
         t2 = t1
@@ -74,6 +74,9 @@ def main(data):
                             if m == '6':
                                 m = 'C'
                                 ndmy = l + y + m + d
+                            if m == '1':
+                                m = 'I'
+                                ndmy = l + y + m + d
                             if all(i.isdigit() for i in (d, y)) and m in 'ABCDEFGHIJKL':
                                 d = int(d)
                                 y = int(y) + 2000
@@ -97,6 +100,10 @@ def main(data):
                             if m == '6':
                                 m = 'C'
                                 ndmy = l + y + m + d
+                            if m == '1':
+                                m = 'I'
+                                ndmy = l + y + m + d
+
                             if all(i.isdigit() for i in (d, y)) and m in 'ABCDEFGHIJKL':
                                 d = int(d)
                                 y = int(y) + 2000
